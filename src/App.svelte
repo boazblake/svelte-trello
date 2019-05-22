@@ -1,7 +1,9 @@
 <style>
   .container {
-    display: flex;
-    flex-flow: wrap;
+    display: grid;
+    grid-template-rows: repeat(1fr);
+    grid-template-columns: repeat(1fr) ;
+    grid-template-areas: 'top' 'body';
     background: #ecf0f1;
     height: 95vh;
     width: 95vw;
@@ -12,8 +14,16 @@
   }
 
   .top {
+    grid-area: top;
     width: 100%;
     height:100px;
+  }
+
+  .body {
+    grid-area: body;
+    width: 95vw;
+    display: flex;
+    flex-flow: wrap;
   }
 
   .title {
@@ -22,19 +32,19 @@
     word-wrap: break-word;;
   }
 
-  .row {
-    display: flex;
-    flex-flow: row-wrap;
-    align-content: center;
-  }
 
   .hr {
     background-color: black;
   }
 
-  .inputContainer {
+  .row {
     display: flex;
     flex-flow: row;
+  }
+
+  .title {
+    width: 100%;
+    padding: 10px;
   }
 
   .input {
@@ -50,32 +60,38 @@
     margin: 20px;
     flex-flow: column;
     color: #ecf0f1;
-    background-color: rgba(52, 73, 94,0.8);
     justify-content: flex-start;
     align-content:center;
-    width: 300px;
-    min-height: 200px;
+    min-width: 30%;
     padding: 4px;
+    width: 80%;
+  }
+
+  .colHead {
+    background-color: rgba(52, 73, 94, 0.6);
   }
 
   .colBody {
-    margin-top: 4px;
     display: flex;
-    flex-flow: wrap;
+    flex-flow: column;
+    background-color: rgba(52, 73, 94,0.8);
+    min-height: 150px;
+    justify-content: space-evenly;
   }
 
   .cardRow {
     display: flex;
     flex-flow: row;
-    justify-content: space-between;
+    justify-content: center;
     align-content: center;
   }
 
   .card {
     width: 200px;
+    height: 30px;
     background-color: #ecf0f1;
     color: rgba(52, 73, 94,1);
-    margin: 4px;
+    margin: auto;
     padding: 4px;
   }
 
@@ -99,18 +115,12 @@
     font-weight: 300;
     color: rgba(52, 73, 94,1);
     text-align:center;
+    cursor: pointer;
     transition: all 0.2s;
   }
   .btn:hover {
     color: #000000;
     background-color: #FFFFFF;
-  }
-
-  @media all and (max-width:30em) {
-    .btn {
-      display: block;
-      margin: 0.4em auto;
-    }
   }
 
   .delete {
@@ -120,9 +130,9 @@
     background: none;
     border-radius: 100px;
     font-weight: 900;
-    /* font-size: 1.2em; */
     border: none;
     justify-content: space-between;
+    cursor: pointer;
   }
 
   .delete:hover {
@@ -137,7 +147,6 @@
     background: none;
     border-radius: 100px;
     font-weight: 900;
-    /* font-size: 1.2em; */
     border: none;
     justify-content: space-between;
   }
@@ -149,6 +158,31 @@
   .drag:active {
     cursor:grabbing;
   }
+
+  @media screen and (min-width: 600px) and (max-width: 899px) {
+  
+  }
+
+  @media screen and (min-width: 900px)  and (max-width: 1199px) {
+    .col {
+      width: 40%;
+    }
+  }
+
+
+  @media screen and (min-width: 1200px)  and (max-width: 1799px) {
+    .col {
+      width: 40%;
+    }
+  }
+
+  @media screen and (min-width: 1800px) {
+    .col {
+      width: 20%;
+    }
+  }
+
+
 
 
 </style>
@@ -191,6 +225,7 @@
   }
 
   let handleDrop = ev => {
+    console.log(ev.target)
     ev.preventDefault()
     let prefix = ev.target.id.split('-')[0]
     let col = ev.target.id.split('-')[1]
@@ -227,25 +262,26 @@
   <div class="top">
     <h1 class="title">Svelte Trello</h1>
     <hr class="hr">
-    <div class="inputContainer">
+    <div class="row">
       <input id='input-collection' class="input" placeholder="add a new Collection"/>
       <button class="btn" on:click={ev => addCollections()}>ADD</button>
     </div>
-    <!-- <code>{JSON.stringify(cards)}<code> -->
-    <!-- <code>{JSON.stringify(collections)}<code> -->
   </div>
 
+<section class="body">
   {#each collections as collection, i (collection.id)}
-    <div class="col" id='col-{collection.id}' on:drop={handleDrop} on:dragover={handleDragOver}>
-      <div class="inputContainer">
-        <h2 class="h2">{collection.val}</h2>
-        <button class="btn delete" on:click={ev => removeCol(collection.id)}>X</button>
+    <div class="col" on:drop={handleDrop} on:dragover={handleDragOver}>
+      <div class="colHead">
+        <div class="title row">
+          <h2 class="h2">{collection.val}</h2>
+          <button class="btn delete" on:click={ev => removeCol(collection.id)}>X</button>
+        </div>
+        <div class="row">
+          <input id='input-{collection.id}' class="input" placeholder="add a new task"/>
+          <button class="btn" on:click={ev => addCard(collection.id)}>ADD</button>
+        </div>
       </div>
-      <div class="inputContainer">
-        <input id='input-{collection.id}' class="input" placeholder="add a new task"/>
-        <button class="btn" on:click={ev => addCard(collection.id)}>ADD</button>
-      </div>
-      <div class="colBody">
+      <div class="colBody"  id='col-{collection.id}' >
         {#each cards as card, i (card.id)}
           {#if card.col == collection.id}
             <div class="cardRow">
@@ -265,5 +301,6 @@
       </div>
    </div>
   {/each}
+  </section>
 
 </section>
